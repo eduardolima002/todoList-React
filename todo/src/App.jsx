@@ -8,6 +8,7 @@ function App() {
 
   const [toogleAddTask, setToogleAddTask] = useState(false);
   const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("Asc");
   const [todo, setTodo] = useState([
     {
       id: 1,
@@ -34,7 +35,22 @@ function App() {
     setTodo(newTodos);
   }
 
+  function handleRemove(removedTodo) {
+    const newTodo = todo.filter((tasks) => {
+      return removedTodo.id !== tasks.id;
+    });
 
+    setTodo(newTodo);
+  }
+
+  function handleComplete(task) {
+    let newTodo = [...todo]
+    newTodo = newTodo.map(todoComplete => {
+      todoComplete.id === task.id ? todoComplete.isComplete =  !todoComplete.isComplete : todoComplete.isComplete;
+      return todoComplete;
+    })
+    setTodo(newTodo);
+  }
   return (
     <>
       <div className='Container'>
@@ -43,8 +59,8 @@ function App() {
         <div className='buttons_container'>
         <button onClick={(e) => {setToogleAddTask(!toogleAddTask)}}>{(toogleAddTask) ? "Fechar" : "Criar tarefa"}</button>
         <div>
-            <button>ASC</button>
-            <button>DESC</button>
+            <button className='order' onClick={() => setSort("Asc")}>ASC</button>
+            <button onClick={() => setSort("Desc")}>DESC</button>
         </div>
         </div>
         {toogleAddTask &&
@@ -52,10 +68,12 @@ function App() {
           <AddTask handleAddTask={handleAddTask}/>
         </div>}
       </div>
-        {todo.filter((todos) => 
+        {todo.filter((todos) =>
           todos.text.toLowerCase().includes(search.toLowerCase())
-        ).map((todos) => (
-          <Todo todo={todos} key={todos.id}/>
+        ).sort((a,b) =>
+        sort === "Asc" ? a.text.localeCompare(b.text) : b.text.localeCompare(a.text)
+      ).map((todos) => (
+          <Todo todo={todos} key={todos.id} handleComplete={handleComplete} handleRemove={handleRemove}/>
         ))}
       </div>
       <GlobalStyle />
